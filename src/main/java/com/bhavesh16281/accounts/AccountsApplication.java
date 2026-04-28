@@ -1,13 +1,16 @@
 package com.bhavesh16281.accounts;
 
+import com.bhavesh16281.accounts.dto.AccountsContactInfoDto;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditAwareImpl")
+@EnableConfigurationProperties(value = AccountsContactInfoDto.class)
 @OpenAPIDefinition(
 	info = @io.swagger.v3.oas.annotations.info.Info(
 		title = "Accounts API",

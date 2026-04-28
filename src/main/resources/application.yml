@@ -15,3 +15,12 @@ spring:
   h2:
     console:
       enabled: true
+build:
+  version: "1.0"
+
+accounts:
+  message: "Accounts microservice is active"
+  contactDetails:
+    name: "Muthyalu Bhavesh"
+    email: "bhavesh16281@gmail.com"
+    phone: "+91 8309828565"

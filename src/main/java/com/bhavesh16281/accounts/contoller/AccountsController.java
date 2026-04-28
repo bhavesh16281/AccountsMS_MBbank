@@ -1,6 +1,7 @@
 package com.bhavesh16281.accounts.contoller;
 
 import com.bhavesh16281.accounts.constants.AccountsConstants;
+import com.bhavesh16281.accounts.dto.AccountsContactInfoDto;
 import com.bhavesh16281.accounts.dto.CustomerDTO;
 import com.bhavesh16281.accounts.dto.ErrorResponseDTO;
 import com.bhavesh16281.accounts.dto.ResponseDTO;
@@ -13,7 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,11 +26,62 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Accounts API", description = "API for managing customer accounts")
 @RestController
 @RequestMapping(value = "/api/accounts", produces = {MediaType.APPLICATION_JSON_VALUE})
-@AllArgsConstructor
 @Validated
 public class AccountsController {
 
-    private AccountsService accountsService;
+    private final AccountsService accountsService;
+
+    @Value("${build.version}")
+    private String buildVersion;
+
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private AccountsContactInfoDto accountsContactInfoDto;
+
+    public  AccountsController(AccountsService accountsService) {
+        this.accountsService = accountsService;
+    }
+
+    @Operation(
+            summary = "Get Build Information",
+            description = "Get Build information that is deployed into accounts microservice.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Http Status OK"),
+            @ApiResponse(responseCode = "500",description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/build-info")
+    public ResponseEntity<String> getBuildInfo(){
+        return ResponseEntity.ok(buildVersion);
+    }
+
+    @Operation(
+            summary = "Get Java Version",
+            description = "Get Java version that is deployed into accounts microservice.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Http Status OK"),
+            @ApiResponse(responseCode = "500",description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/java-info")
+    public ResponseEntity<String> getJavaInfo(){
+        return ResponseEntity.ok(environment.getProperty("JAVA_HOME"));
+    }
+
+    @Operation(
+            summary = "Get Contact Info",
+            description = "Contact info if there is any issue in the API.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Http Status OK"),
+            @ApiResponse(responseCode = "500",description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
+    })
+    @GetMapping("/contact-info")
+    public ResponseEntity<AccountsContactInfoDto> getContactInfo(){
+        return ResponseEntity.ok(accountsContactInfoDto);
+    }
 
     @Operation(
             summary = "Create a new customer account",
