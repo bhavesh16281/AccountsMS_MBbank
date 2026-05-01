@@ -1,0 +1,14 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+
+build:
+  version: "1.0"
+
+accounts:
+  message: "Accounts microservice is active in Production environment"
+  contactDetails:
+    name: "Muthyalu Bhavesh"
+    email: "bhavesh16281@gmail.com"
+    phone: "+91 8309828565"

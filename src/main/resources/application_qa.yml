@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: "qa"
+build:
+  version: "2.0"
+
+accounts:
+  message: "Accounts microservice is active in UAT environment"
+  contactDetails:
+    name: "Muthyalu Bhavesh"
+    email: "bhavesh16281@gmail.com"
+    phone: "+91 8309828565"
