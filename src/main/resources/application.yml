@@ -2,6 +2,10 @@ server:
   port: 8080
 
 spring:
+  application:
+    name: accounts
+  profiles:
+    active: prod
   datasource:
     url: jdbc:h2:mem:testdb
     username: ROOT
@@ -16,17 +20,10 @@ spring:
     console:
       enabled: true
   config:
-    import:
-      - application_qa.yml
-      - application_prod.yml
-  profiles:
-    active: "prod"
-build:
-  version: "3.0"
+    import: "configserver:http://localhost:8071/"
 
-accounts:
-  message: "Accounts microservice is active"
-  contactDetails:
-    name: "Muthyalu Bhavesh"
-    email: "bhavesh16281@gmail.com"
-    phone: "+91 8309828565"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
