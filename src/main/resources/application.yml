@@ -20,25 +20,15 @@ spring:
     console:
       enabled: true
   config:
-    import: "optional:configserver:http://localhost:8071/"
+    import: "optional:configserver:http://${CONFIG_SERVER_URL:localhost:8071}/"
   rabbitmq:
     host: localhost
     port: 5672
-    username: "guest"
-    password: "guest"
+    username: guest
+    password: guest
   cloud:
-    stream:
-      rabbit:
-        binder:
-          auto-bind-dlq: false
-      bindings:
-        springCloudBusInput:
-          destination: springCloudBus
-          group: ${spring.application.name}
-          binder: rabbit
-          consumer:
-            exchangeType: topic
-            max-attempts: 1
+    bus:
+      enabled: true
 
 management:
   endpoints:
