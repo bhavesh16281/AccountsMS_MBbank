@@ -7,25 +7,27 @@ spring:
   profiles:
     active: prod
   datasource:
-    url: jdbc:h2:mem:testdb
-    username: ROOT
-    password:
-    driver-class-name: org.h2.Driver
-    initialization-mode: always
+    url: jdbc:mysql://localhost:3308/accountsDB
+    username: root
+    password: root
+    # initialization-mode: always
   jpa:
-    hibernate:
-      ddl-auto: update
+    # hibernate:
+    #   ddl-auto: update
     show-sql: true
+  sql:
+    init:
+      mode: always
   h2:
     console:
       enabled: true
   config:
     import: "optional:configserver:http://${CONFIG_SERVER_URL:localhost:8071}/"
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+  # rabbitmq:
+  #   host: localhost
+  #   port: 5672
+  #   username: guest
+  #   password: guest
   cloud:
     bus:
       enabled: true
