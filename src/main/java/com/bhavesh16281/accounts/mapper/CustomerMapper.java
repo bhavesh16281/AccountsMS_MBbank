@@ -1,6 +1,7 @@
 package com.bhavesh16281.accounts.mapper;
 
 import com.bhavesh16281.accounts.dto.CustomerDTO;
+import com.bhavesh16281.accounts.dto.CustomerDetailsDto;
 import com.bhavesh16281.accounts.entity.Customer;
 
 public class CustomerMapper {
@@ -22,5 +23,14 @@ public class CustomerMapper {
         customer.setPhone(customerDto.getPhone());
 
         return customer;
+    }
+
+    public static CustomerDetailsDto mapToCustomerDetailsDto(Customer customer,CustomerDetailsDto customerDetailsDto) {
+
+        customerDetailsDto.setName(customer.getName());
+        customerDetailsDto.setEmail(customer.getEmail());
+        customerDetailsDto.setPhone(customer.getPhone());
+
+        return customerDetailsDto;
     }
 }

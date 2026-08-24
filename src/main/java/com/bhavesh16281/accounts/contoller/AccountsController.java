@@ -101,11 +101,11 @@ public class AccountsController {
     }
 
     @Operation(
-            summary = "Fetch customer details by phone number",
-            description = "Retrieves customer details based on the provided phone number.")
+            summary = "Fetch account details by phone number",
+            description = "Retrieves account details based on the provided phone number.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer details fetched successfully"),
-            @ApiResponse(responseCode = "500",description = "Internal server error while fetching customer details",
+            @ApiResponse(responseCode = "200", description = "Account details fetched successfully"),
+            @ApiResponse(responseCode = "500",description = "Internal server error while fetching account details",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
     @GetMapping("/fetch")
@@ -168,4 +168,5 @@ public class AccountsController {
                     .body(new ResponseDTO(AccountsConstants.STATUS_417, AccountsConstants.MESSAGE_417_DELETE));
         }
     }
+
 }

@@ -1,6 +1,8 @@
 package com.bhavesh16281.accounts.service;
 
 import com.bhavesh16281.accounts.dto.CustomerDTO;
+import com.bhavesh16281.accounts.dto.CustomerDetailsDto;
+
 import org.springframework.web.bind.annotation.RequestParam;
 
 public interface AccountsService {
@@ -9,4 +11,5 @@ public interface AccountsService {
     CustomerDTO getCustomerByPhone(String phone);
     boolean updateAccount(CustomerDTO customerDTO);
     boolean deleteAccount(String phone);
+    CustomerDetailsDto getCustomerDetailsByPhone(String phone);
 }

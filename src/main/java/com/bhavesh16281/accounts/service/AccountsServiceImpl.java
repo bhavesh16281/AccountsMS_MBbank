@@ -2,7 +2,10 @@ package com.bhavesh16281.accounts.service;
 
 import com.bhavesh16281.accounts.constants.AccountsConstants;
 import com.bhavesh16281.accounts.dto.AccountsDTO;
+import com.bhavesh16281.accounts.dto.CardsDto;
 import com.bhavesh16281.accounts.dto.CustomerDTO;
+import com.bhavesh16281.accounts.dto.CustomerDetailsDto;
+import com.bhavesh16281.accounts.dto.LoansDto;
 import com.bhavesh16281.accounts.entity.Accounts;
 import com.bhavesh16281.accounts.entity.Customer;
 import com.bhavesh16281.accounts.exception.CustomerAlreadyExistsException;
@@ -11,12 +14,14 @@ import com.bhavesh16281.accounts.mapper.AccountsMapper;
 import com.bhavesh16281.accounts.mapper.CustomerMapper;
 import com.bhavesh16281.accounts.repository.AccountsRepository;
 import com.bhavesh16281.accounts.repository.CustomerRepository;
+import com.bhavesh16281.accounts.service.client.CardsFeignClient;
+import com.bhavesh16281.accounts.service.client.LoansFeignClient;
+
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -28,6 +33,10 @@ public class AccountsServiceImpl implements AccountsService {
     private AccountsRepository accountsRepository;
     @Autowired
     private CustomerRepository customerRepository;
+    @Autowired
+    private CardsFeignClient cardsFeignClient;
+    @Autowired
+    private LoansFeignClient loansFeignClient;
 
     @Override
     public void createAccount(CustomerDTO customerDTO) {
@@ -108,6 +117,30 @@ public class AccountsServiceImpl implements AccountsService {
         newAccount.setBranchAddress(AccountsConstants.ADDRESS);
 
         return newAccount;
+    }
+
+    @Override
+    public CustomerDetailsDto getCustomerDetailsByPhone(String phone) {
+        
+        Customer customer = customerRepository.findByPhone(phone).orElseThrow(
+                () -> new ResourceNotFoundException("Customer","mobileNumber",phone)
+        );
+
+        Accounts accounts = accountsRepository.findByCustomerId(customer.getCustomerId()).orElseThrow(
+                () -> new ResourceNotFoundException("Account","customerId",customer.getCustomerId().toString())
+        );
+
+        CustomerDetailsDto customerDetailsDto =  CustomerMapper.mapToCustomerDetailsDto(customer, new CustomerDetailsDto());
+        customerDetailsDto.setAccountsDTO(AccountsMapper.mapToAccountsDto(accounts, new AccountsDTO()));
+        
+        // Fetch cards and loans details using Feign clients
+        ResponseEntity<LoansDto> loansResponse = loansFeignClient.fetchLoanDetails(phone);
+        ResponseEntity<CardsDto> cardsResponse = cardsFeignClient.fetchCardDetails(phone);
+
+        customerDetailsDto.setLoansDto(loansResponse.getBody());
+        customerDetailsDto.setCardsDto(cardsResponse.getBody());
+
+        return customerDetailsDto;
     }
 
 }
