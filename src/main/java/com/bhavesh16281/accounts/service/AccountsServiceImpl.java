@@ -18,6 +18,8 @@ import com.bhavesh16281.accounts.service.client.CardsFeignClient;
 import com.bhavesh16281.accounts.service.client.LoansFeignClient;
 
 import lombok.AllArgsConstructor;
+
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,8 @@ public class AccountsServiceImpl implements AccountsService {
     private CardsFeignClient cardsFeignClient;
     @Autowired
     private LoansFeignClient loansFeignClient;
+
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(AccountsServiceImpl.class);
 
     @Override
     public void createAccount(CustomerDTO customerDTO) {
@@ -120,8 +124,11 @@ public class AccountsServiceImpl implements AccountsService {
     }
 
     @Override
-    public CustomerDetailsDto getCustomerDetailsByPhone(String phone) {
-        
+    public CustomerDetailsDto getCustomerDetailsByPhone(String correlationId, String phone) {
+
+        logger.info("Fetching customer details for mobile number: {}", phone);
+        logger.info("Correlation ID: {}", correlationId);
+
         Customer customer = customerRepository.findByPhone(phone).orElseThrow(
                 () -> new ResourceNotFoundException("Customer","mobileNumber",phone)
         );
@@ -134,8 +141,10 @@ public class AccountsServiceImpl implements AccountsService {
         customerDetailsDto.setAccountsDTO(AccountsMapper.mapToAccountsDto(accounts, new AccountsDTO()));
         
         // Fetch cards and loans details using Feign clients
-        ResponseEntity<LoansDto> loansResponse = loansFeignClient.fetchLoanDetails(phone);
-        ResponseEntity<CardsDto> cardsResponse = cardsFeignClient.fetchCardDetails(phone);
+        logger.info("Fetching loan details for mobile number: {}", phone);
+        logger.info("Correlation ID: {}", correlationId);
+        ResponseEntity<LoansDto> loansResponse = loansFeignClient.fetchLoanDetails(correlationId,phone);
+        ResponseEntity<CardsDto> cardsResponse = cardsFeignClient.fetchCardDetails(correlationId,phone);
 
         customerDetailsDto.setLoansDto(loansResponse.getBody());
         customerDetailsDto.setCardsDto(cardsResponse.getBody());
