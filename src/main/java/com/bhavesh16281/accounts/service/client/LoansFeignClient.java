@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bhavesh16281.accounts.dto.LoansDto;
 
-@FeignClient(name = "loans")
+@FeignClient(name = "loans", fallback = LoansFallback.class)
 public interface LoansFeignClient {
 
     @GetMapping("/api/loans/fetch")

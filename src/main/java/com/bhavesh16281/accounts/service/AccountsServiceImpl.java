@@ -145,9 +145,14 @@ public class AccountsServiceImpl implements AccountsService {
         logger.info("Correlation ID: {}", correlationId);
         ResponseEntity<LoansDto> loansResponse = loansFeignClient.fetchLoanDetails(correlationId,phone);
         ResponseEntity<CardsDto> cardsResponse = cardsFeignClient.fetchCardDetails(correlationId,phone);
+        
+        if(loansResponse!=null){
+            customerDetailsDto.setLoansDto(loansResponse.getBody());
 
-        customerDetailsDto.setLoansDto(loansResponse.getBody());
-        customerDetailsDto.setCardsDto(cardsResponse.getBody());
+        }
+        if(cardsResponse!=null){
+            customerDetailsDto.setCardsDto(cardsResponse.getBody());
+        }
 
         return customerDetailsDto;
     }

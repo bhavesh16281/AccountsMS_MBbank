@@ -6,6 +6,9 @@ import com.bhavesh16281.accounts.dto.CustomerDTO;
 import com.bhavesh16281.accounts.dto.ErrorResponseDTO;
 import com.bhavesh16281.accounts.dto.ResponseDTO;
 import com.bhavesh16281.accounts.service.AccountsService;
+
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +17,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
+
+import java.util.concurrent.TimeoutException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -30,6 +38,7 @@ import org.springframework.web.bind.annotation.*;
 public class AccountsController {
 
     private final AccountsService accountsService;
+    private static final Logger logger = LoggerFactory.getLogger(AccountsController.class);
 
     @Value("${build.version}")
     private String buildVersion;
@@ -52,9 +61,20 @@ public class AccountsController {
             @ApiResponse(responseCode = "500",description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
+    @Retry(name = "getBuildInfo",fallbackMethod = "getBuildInfoFallback")
     @GetMapping("/build-info")
-    public ResponseEntity<String> getBuildInfo(){
-        return ResponseEntity.ok(buildVersion);
+    public ResponseEntity<String> getBuildInfo() throws TimeoutException{
+        logger.debug("inside getBuildInfo()");
+        // throw new NullPointerException();
+        throw new TimeoutException();
+        // return ResponseEntity.ok(buildVersion);
+    }
+
+    public ResponseEntity<String> getBuildInfoFallback(Throwable throwable){
+        
+        logger.debug("inside getBuildInfoFallback()");
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("retry method invoked.");
     }
 
     @Operation(
@@ -65,9 +85,14 @@ public class AccountsController {
             @ApiResponse(responseCode = "500",description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = ErrorResponseDTO.class)))
     })
+    @RateLimiter(name = "getJavaInfo",fallbackMethod = "getJavaInfoFallback")
     @GetMapping("/java-info")
     public ResponseEntity<String> getJavaInfo(){
         return ResponseEntity.ok(environment.getProperty("JAVA_HOME"));
+    }
+
+    public ResponseEntity<String> getJavaInfoFallback(Throwable throwable){
+        return ResponseEntity.status(HttpStatus.OK).body("Java 17");
     }
 
     @Operation(
@@ -80,7 +105,7 @@ public class AccountsController {
     })
     @GetMapping("/contact-info")
     public ResponseEntity<AccountsContactInfoDto> getContactInfo(){
-        return ResponseEntity.ok(accountsContactInfoDto);
+        return ResponseEntity.ok(accountsContactInfoDto); 
     }
 
     @Operation(
@@ -93,7 +118,6 @@ public class AccountsController {
     })
     @PostMapping("/create")
     public ResponseEntity<ResponseDTO> createAccount(@Valid @RequestBody CustomerDTO  customerDTO){
-
         accountsService.createAccount(customerDTO);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
