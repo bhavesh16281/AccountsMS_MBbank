@@ -52,10 +52,13 @@ management:
     shutdown:
       # enabled: true
       access: unrestricted
-  
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      
 endpoints:
   shutdown:
     enabled: true
@@ -79,6 +82,8 @@ logging:
     com:
       bhavesh16281:
         accounts: DEBUG
+  pattern:
+    level: "%5p[${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
 
 resilience4j.circuitbreaker:
   configs:
