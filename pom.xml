@@ -167,7 +167,7 @@
 				<version>3.5.1</version>
 				<configuration>
 					<to>
-						<image>bhavesh16281/${project.artifactId}:1.7</image>
+						<image>bhavesh16281/${project.artifactId}:1.8</image>
 					</to>
 				</configuration>
 			</plugin>
