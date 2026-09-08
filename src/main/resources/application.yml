@@ -23,17 +23,28 @@ spring:
       enabled: true
   config:
     import: "optional:configserver:http://${CONFIG_SERVER_URL:localhost:8071}/"
-  # rabbitmq:
-  #   host: localhost
-  #   port: 5672
-  #   username: guest
-  #   password: guest
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    connection-timeout: 10s
   cloud:
     bus:
       enabled: true
     openfeign:
       circuitbreaker:
         enabled: true
+    function:
+      definition: updateCommunication
+    stream:
+      bindings:
+        sendCommunication-out-0:
+          destination: send-communication
+        updateCommunication-in-0:
+          destination: communication-sent
+          group: ${spring.application.name}
+        
 
 management:
   endpoints:

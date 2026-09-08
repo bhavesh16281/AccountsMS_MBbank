@@ -2,6 +2,7 @@ package com.bhavesh16281.accounts.service;
 
 import com.bhavesh16281.accounts.constants.AccountsConstants;
 import com.bhavesh16281.accounts.dto.AccountsDTO;
+import com.bhavesh16281.accounts.dto.AccountsMessageDto;
 import com.bhavesh16281.accounts.dto.CardsDto;
 import com.bhavesh16281.accounts.dto.CustomerDTO;
 import com.bhavesh16281.accounts.dto.CustomerDetailsDto;
@@ -21,6 +22,7 @@ import lombok.AllArgsConstructor;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +41,8 @@ public class AccountsServiceImpl implements AccountsService {
     private CardsFeignClient cardsFeignClient;
     @Autowired
     private LoansFeignClient loansFeignClient;
+    @Autowired 
+    private final StreamBridge streamBridge;
 
     private static final Logger logger = org.slf4j.LoggerFactory.getLogger(AccountsServiceImpl.class);
 
@@ -53,7 +57,15 @@ public class AccountsServiceImpl implements AccountsService {
         }
 
         Customer savedCustomer = customerRepository.save(customer);
-        accountsRepository.save(createAccount(savedCustomer));
+        Accounts savedAccount = accountsRepository.save(createAccount(savedCustomer));
+        sendCommunication(savedAccount, savedCustomer);
+    }
+
+    private void sendCommunication(Accounts account, Customer customer){
+        AccountsMessageDto accountsMessageDto = new AccountsMessageDto(account.getAccountNumber(),customer.getName(),customer.getEmail(),customer.getPhone());
+        logger.info("Sending message to RabbitMQ: {}", accountsMessageDto);
+        boolean result = streamBridge.send("sendCommunication-out-0", accountsMessageDto);
+        logger.info("Message sent to RabbitMQ: {}", result);
     }
 
     @Override
@@ -119,6 +131,7 @@ public class AccountsServiceImpl implements AccountsService {
         newAccount.setAccountNumber(randomAccNum);
         newAccount.setAccountType(AccountsConstants.SAVINGS);
         newAccount.setBranchAddress(AccountsConstants.ADDRESS);
+        newAccount.setCommunicationSwitch(false);
 
         return newAccount;
     }
@@ -155,6 +168,22 @@ public class AccountsServiceImpl implements AccountsService {
         }
 
         return customerDetailsDto;
+    }
+
+    @Override
+    public boolean updateCommunicationSwitch(Long accountNumber) {
+
+        boolean isUpdated = false;
+
+        if(accountNumber !=null){
+            Accounts accounts = accountsRepository.findById(accountNumber).orElseThrow(
+                    () -> new ResourceNotFoundException("Account","accountNumber",accountNumber.toString())
+            );
+            accounts.setCommunicationSwitch(true);
+            accountsRepository.save(accounts);
+            isUpdated = true;
+        }
+        return isUpdated;
     }
 
 }

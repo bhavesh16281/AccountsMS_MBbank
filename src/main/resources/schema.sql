@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS accounts (
     account_number BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     account_type VARCHAR(50) NOT NULL,
     branch_address VARCHAR(200) NOT NULL,
+    communication_switch BOOLEAN NOT NULL,
     created_at DATETIME NOT NULL,
     created_by VARCHAR(255) NOT NULL,
     updated_at DATETIME DEFAULT NULL,

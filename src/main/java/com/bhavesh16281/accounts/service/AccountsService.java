@@ -10,4 +10,5 @@ public interface AccountsService {
     boolean updateAccount(CustomerDTO customerDTO);
     boolean deleteAccount(String phone);
     CustomerDetailsDto getCustomerDetailsByPhone(String correlationId,String phone);
+    boolean updateCommunicationSwitch(Long accountNumber);
 }
