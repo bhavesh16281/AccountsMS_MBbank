@@ -23,12 +23,12 @@ spring:
       enabled: true
   config:
     import: "optional:configserver:http://${CONFIG_SERVER_URL:localhost:8071}/"
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-    connection-timeout: 10s
+  # rabbitmq:
+  #   host: localhost
+  #   port: 5672
+  #   username: guest
+  #   password: guest
+  #   connection-timeout: 10s
   cloud:
     bus:
       enabled: true
@@ -44,6 +44,11 @@ spring:
         updateCommunication-in-0:
           destination: communication-sent
           group: ${spring.application.name}
+      kafka:
+        binder:
+          brokers: localhost:9092
+          defaultBrokerPort: 9092
+          # defaultZkPort: 2181
         
 
 management:
